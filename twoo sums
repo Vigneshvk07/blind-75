@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define TABLE_SIZE 10000
+typedef struct Entry {
+    int key;
+    int value;
+    struct Entry* next;
+} Entry;
+typedef struct {
+    Entry* table[TABLE_SIZE];
+} HashTable;
+unsigned int hash(int key) {
+    return abs(key) % TABLE_SIZE;
+}
+HashTable* createHashTable() {
+    HashTable* hashTable = (HashTable*)malloc(sizeof(HashTable));
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashTable->table[i] = NULL;
+    }
+    return hashTable;
+}
+void insert(HashTable* hashTable, int key, int value) {
+    unsigned int index = hash(key);
+    Entry* newEntry = (Entry*)malloc(sizeof(Entry));
+    newEntry->key = key;
+    newEntry->value = value;
+    newEntry->next = hashTable->table[index];
+    hashTable->table[index] = newEntry;
+}
+int search(HashTable* hashTable, int key) {
+    unsigned int index = hash(key);
+    Entry* entry = hashTable->table[index];
+    while (entry != NULL) {
+        if (entry->key == key) {
+            return entry->value;
+        }
+        entry = entry->next;
+    }
+    return -1; // Not found
+}
+void freeHashTable(HashTable* hashTable) {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Entry* entry = hashTable->table[i];
+        while (entry != NULL) {
+            Entry* prev = entry;
+            entry = entry->next;
+            free(prev);
+        }
+    }
+    free(hashTable);
+}
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    HashTable* hashTable = createHashTable();
+    int* result = (int*)malloc(2 * sizeof(int));
+    
+    for (int i = 0; i < numsSize; i++) {
+        int complement = target - nums[i];
+        int complementIndex = search(hashTable, complement);
+        
+        if (complementIndex != -1) {
+            result[0] = complementIndex;
+            result[1] = i;
+            *returnSize = 2;
+            freeHashTable(hashTable);
+            return result;
+        }
+        
+        insert(hashTable, nums[i], i);
+    }
+    
+    freeHashTable(hashTable);
+    *returnSize = 0;
+    return NULL; // No solution found
+}
+
+int main() {
+    int nums[] = {2, 7, 11, 15};
+    int target = 9;
+    int returnSize;
+    
+    int* indices = twoSum(nums, 4, target, &returnSize);
+    
+    if (indices != NULL) {
+        printf("Indices: [%d, %d]\n", indices[0], indices[1]);
+        free(indices);
+    } else {
+        printf("No solution found.\n");
+    }
+    
+    return 0;
+}
