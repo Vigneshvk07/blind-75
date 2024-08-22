@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <limits.h> 
+int maxProduct(int* nums, int numsSize) {
+    if (numsSize == 0) {
+        return 0; // Edge case: empty array
+    }
+    
+   
+    int max_so_far = nums[0];
+    int max_ending_here = nums[0];
+    int min_ending_here = nums[0];
+    
+  
+    for (int i = 1; i < numsSize; i++) {
+        int num = nums[i];
+        
+        int temp_max = max_ending_here;
+        max_ending_here = (num > num * max_ending_here) ? num : (num * max_ending_here);
+        max_ending_here = (max_ending_here > num * min_ending_here) ? max_ending_here : (num * min_ending_here);
+        min_ending_here = (num < num * temp_max) ? num : (num * temp_max);
+        min_ending_here = (min_ending_here < num * min_ending_here) ? min_ending_here : (num * min_ending_here);
+        
+    
+        max_so_far = (max_so_far > max_ending_here) ? max_so_far : max_ending_here;
+    }
+    
+    return max_so_far;
+}
+
+int main() {
+    int nums1[] = {2, 3, -2, 4};
+    int numsSize1 = sizeof(nums1) / sizeof(nums1[0]);
+    
+    int nums2[] = {-2, 0, -1};
+    int numsSize2 = sizeof(nums2) / sizeof(nums2[0]);
+    
+    printf("Output 1: %d\n", maxProduct(nums1, numsSize1)); 
+    printf("Output 2: %d\n", maxProduct(nums2, numsSize2)); 
+    
+    return 0;
+}
